@@ -1,8 +1,13 @@
 name: Auto Format and Lint Fix
 
+# 一時的に無効化：Phase 2実装完了後に再有効化
+# on:
+#   pull_request:
+#     branches: [main]
+
+# 手動トリガーのみ許可
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
