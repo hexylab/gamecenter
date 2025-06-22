@@ -27,13 +27,23 @@ body {
 
 /* カスタムアニメーション */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-border {
-  0%, 100% { border-color: rgb(229 231 235); }
-  50% { border-color: rgb(59 130 246); }
+  0%,
+  100% {
+    border-color: rgb(229 231 235);
+  }
+  50% {
+    border-color: rgb(59 130 246);
+  }
 }
 
 @keyframes fadeInUp {
@@ -70,8 +80,13 @@ body {
 /* ダークモード対応のアニメーション */
 @media (prefers-color-scheme: dark) {
   @keyframes pulse-border {
-    0%, 100% { border-color: rgb(55 65 81); }
-    50% { border-color: rgb(59 130 246); }
+    0%,
+    100% {
+      border-color: rgb(55 65 81);
+    }
+    50% {
+      border-color: rgb(59 130 246);
+    }
   }
 }
 
@@ -87,13 +102,17 @@ html {
 
 .game-card-hover:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* ダークモードでのホバー効果 */
 @media (prefers-color-scheme: dark) {
   .game-card-hover:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.3),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2);
   }
 }
 

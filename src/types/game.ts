@@ -12,25 +12,19 @@ export interface Game {
   updatedAt: string;
 }
 
-export type GameCategory = 
-  | 'Action'
-  | 'Puzzle' 
-  | 'Strategy'
-  | 'Arcade'
-  | 'Casual'
-  | 'Sport'
-  | 'Adventure'
-  | 'Simulation';
+export type GameCategory =
+  | "Action"
+  | "Puzzle"
+  | "Strategy"
+  | "Arcade"
+  | "Casual"
+  | "Sport"
+  | "Adventure"
+  | "Simulation";
 
-export type GameDifficulty = 
-  | 'Easy'
-  | 'Medium' 
-  | 'Hard';
+export type GameDifficulty = "Easy" | "Medium" | "Hard";
 
-export type GameStatus = 
-  | 'Available'
-  | 'Coming Soon'
-  | 'Maintenance';
+export type GameStatus = "Available" | "Coming Soon" | "Maintenance";
 
 export interface GameFilter {
   category?: GameCategory;

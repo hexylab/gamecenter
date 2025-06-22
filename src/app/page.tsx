@@ -1,5 +1,5 @@
-import { Header, GameGrid } from '@/components';
-import { gameTemplates } from '@/data/games';
+import { Header, GameGrid } from "@/components";
+import { gameTemplates } from "@/data/games";
 
 export default function Home() {
   return (

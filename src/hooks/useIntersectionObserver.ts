@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface UseIntersectionObserverOptions {
   threshold?: number;
@@ -9,13 +9,9 @@ interface UseIntersectionObserverOptions {
 }
 
 export const useIntersectionObserver = (
-  options: UseIntersectionObserverOptions = {}
+  options: UseIntersectionObserverOptions = {},
 ) => {
-  const {
-    threshold = 0.1,
-    rootMargin = '0px',
-    triggerOnce = true
-  } = options;
+  const { threshold = 0.1, rootMargin = "0px", triggerOnce = true } = options;
 
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(false);
@@ -29,12 +25,12 @@ export const useIntersectionObserver = (
       ([entry]) => {
         const isVisible = entry.isIntersecting;
         setIsIntersecting(isVisible);
-        
+
         if (isVisible && !hasIntersected) {
           setHasIntersected(true);
         }
       },
-      { threshold, rootMargin }
+      { threshold, rootMargin },
     );
 
     observer.observe(element);
@@ -53,11 +49,11 @@ export const useIntersectionObserver = (
 // 複数の要素に段階的なアニメーションを適用するためのフック
 export const useStaggeredIntersectionObserver = (
   count: number,
-  options: UseIntersectionObserverOptions & { staggerDelay?: number } = {}
+  options: UseIntersectionObserverOptions & { staggerDelay?: number } = {},
 ) => {
   const { staggerDelay = 100, ...intersectionOptions } = options;
   const [visibleItems, setVisibleItems] = useState<boolean[]>(
-    new Array(count).fill(false)
+    new Array(count).fill(false),
   );
   const containerRef = useRef<HTMLElement>(null);
 
@@ -65,23 +61,20 @@ export const useStaggeredIntersectionObserver = (
     const container = containerRef.current;
     if (!container) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // コンテナが表示されたら、段階的にアイテムを表示
-          for (let i = 0; i < count; i++) {
-            setTimeout(() => {
-              setVisibleItems(prev => {
-                const newItems = [...prev];
-                newItems[i] = true;
-                return newItems;
-              });
-            }, i * staggerDelay);
-          }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        // コンテナが表示されたら、段階的にアイテムを表示
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            setVisibleItems((prev) => {
+              const newItems = [...prev];
+              newItems[i] = true;
+              return newItems;
+            });
+          }, i * staggerDelay);
         }
-      },
-      intersectionOptions
-    );
+      }
+    }, intersectionOptions);
 
     observer.observe(container);
 
