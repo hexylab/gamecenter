@@ -1,0 +1,119 @@
+name: Auto Format and Lint Fix (Code)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - '*.json'
+      - '*.js'
+      - '*.ts'
+      - '*.tsx'
+      - '*.jsx'
+      - '*.md'
+      - '*.css'
+      - '*.scss'
+      - '*.yaml'
+      - '*.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'next.config.*'
+      - 'tailwind.config.*'
+      - 'postcss.config.*'
+      - 'eslint.config.*'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# 同時実行を防ぐ
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  autofix-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier (excluding workflows)
+        run: |
+          npx prettier --write . \
+            --ignore-pattern ".github/workflows/**" \
+            --ignore-pattern "node_modules/**" \
+            --ignore-pattern ".next/**" \
+            --ignore-pattern "out/**"
+
+      - name: Run ESLint Fix (excluding workflows)
+        run: |
+          npx eslint . --fix \
+            --ignore-pattern ".github/workflows/**" \
+            --ignore-pattern "node_modules/**" \
+            --ignore-pattern ".next/**" \
+            --ignore-pattern "out/**"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          # ワークフローファイルの変更を除外して確認
+          git add .
+          git reset .github/workflows/ 2>/dev/null || true
+          
+          if [[ -n $(git diff --cached --name-only) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "コードファイルに変更が検出されました"
+            git diff --cached --name-only
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "コミットする変更がありません"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # リモートの最新状態を取得
+          git fetch origin ${{ github.head_ref }}
+          
+          # 変更をコミット
+          git commit -m "chore: 自動フォーマット・Lint修正 (コードファイル)
+
+          🤖 GitHub Actionsによる自動修正
+          - Prettier フォーマット
+          - ESLint 修正
+          
+          対象: コードファイルのみ (.github/workflows/ 除外)"
+          
+          # 安全にプッシュ
+          git push origin HEAD:${{ github.head_ref }}
+
+      - name: Comment on PR if no changes
+        if: steps.check_changes.outputs.has_changes == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ コードファイルのフォーマット・Lintチェック完了。修正が必要な箇所はありませんでした。'
+            })
