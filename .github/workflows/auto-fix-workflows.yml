@@ -1,0 +1,117 @@
+name: Auto Format and Lint Fix (Workflows)
+
+# 手動実行のみ（慎重な運用のため）
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'ターゲットブランチ名'
+        required: true
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autofix-workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+
+      - name: Create workflow fix branch
+        id: create_branch
+        run: |
+          BRANCH_NAME="auto-fix/workflows-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Run Prettier on workflow files only
+        run: |
+          npx prettier --write .github/workflows/**/*.yml .github/workflows/**/*.yaml
+
+      - name: Run YAML lint (if available)
+        run: |
+          # yamllintが利用可能な場合のみ実行
+          if command -v yamllint &> /dev/null; then
+            yamllint .github/workflows/ || echo "yamllint warnings found, but continuing..."
+          else
+            echo "yamllint not available, skipping YAML validation"
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git diff --name-only) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "ワークフローファイルに変更が検出されました:"
+            git diff --name-only
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "変更がありません"
+          fi
+
+      - name: Commit changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git add .github/workflows/
+          git commit -m "chore: ワークフローファイルのフォーマット修正
+
+          🤖 GitHub Actionsによる自動修正
+          - Prettier によるYAMLフォーマット
+          - ワークフローファイル構文確認
+          
+          手動実行: ${{ github.actor }}"
+
+      - name: Push branch and create PR
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git push origin ${{ steps.create_branch.outputs.branch_name }}
+          
+          # GitHub CLIでPRを作成
+          gh pr create \
+            --title "chore: ワークフローファイル自動修正" \
+            --body "## 📋 概要
+          GitHub Actionsワークフローファイルの自動フォーマット修正です。
+          
+          ### 🔧 実行内容
+          - Prettier によるYAMLフォーマット
+          - ワークフロー構文確認
+          
+          ### ⚠️ 確認事項
+          - [ ] ワークフロー構文が正しいことを確認
+          - [ ] 期待通りの動作をすることを確認
+          - [ ] 他のワークフローに影響がないことを確認
+          
+          ### 🤖 実行者
+          手動実行: ${{ github.actor }}
+          
+          ---
+          🤖 自動生成されたPRです。内容を確認してからマージしてください。" \
+            --base ${{ inputs.target_branch }} \
+            --head ${{ steps.create_branch.outputs.branch_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [[ "${{ steps.check_changes.outputs.has_changes }}" == "true" ]]; then
+            echo "✅ ワークフローファイルの修正が完了し、PRが作成されました"
+            echo "ブランチ: ${{ steps.create_branch.outputs.branch_name }}"
+          else
+            echo "ℹ️ 修正が必要なワークフローファイルはありませんでした"
+          fi
