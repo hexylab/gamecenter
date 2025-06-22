@@ -6,6 +6,11 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   autofix:
@@ -13,14 +18,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # 全履歴を取得
+          ref: ${{ github.head_ref }}  # PRのブランチを明示的に指定
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.16.0
+          cache: 'npm'  # npm キャッシュを有効化
 
       - name: Install dependencies
         run: npm ci
@@ -35,10 +43,29 @@ jobs:
         run: |
           git config --global user.name 'ci-bot'
           git config --global user.email 'ci-bot@example.com'
+          
+          # 変更があるかチェック
           if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected, committing and pushing..."
+            
+            # リモートの最新状態を取得
+            git fetch origin ${{ github.head_ref }}
+            
+            # 変更をステージング
             git add .
             git commit -m "chore: auto format & lint fix"
-            git push origin HEAD:${{ github.head_ref }}
+            
+            # リベースして最新の状態に合わせる
+            git pull --rebase origin ${{ github.head_ref }} || {
+              echo "Rebase failed, trying to resolve..."
+              git rebase --abort
+              git pull origin ${{ github.head_ref }}
+              git add .
+              git commit -m "chore: auto format & lint fix"
+            }
+            
+            # プッシュ（force-with-leaseで安全に）
+            git push --force-with-lease origin HEAD:${{ github.head_ref }}
           else
             echo "No changes to commit"
           fi
