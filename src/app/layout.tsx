@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Hexyl's Game Center",
-  description: "様々なWebゲームを楽しめるゲームセンターです。パズル、アクション、カジュアルゲームなど多彩なゲームを用意しています。",
+  description:
+    "様々なWebゲームを楽しめるゲームセンターです。パズル、アクション、カジュアルゲームなど多彩なゲームを用意しています。",
 };
 
 export default function RootLayout({
