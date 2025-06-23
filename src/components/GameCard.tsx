@@ -60,53 +60,56 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
           "
           aria-describedby={`game-${game.id}-description`}
         >
-          {/* ゲームアイコンとタイトル */}
-          <div className="text-center mb-3 sm:mb-4">
-            <div className="text-3xl sm:text-4xl mb-2 sm:mb-3 hover:animate-[float_2s_ease-in-out_infinite] transition-all duration-300">
-              {game.icon}
-            </div>
-            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2 font-[family-name:var(--font-geist-sans)]">
-              {game.title}
-            </h3>
-            <p
-              id={`game-${game.id}-description`}
-              className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed"
-            >
-              {game.description}
-            </p>
-          </div>
+      {/* ゲームアイコンとタイトル */}
+      <div className="text-center mb-3 sm:mb-4">
+        <div className="text-3xl sm:text-4xl mb-2 sm:mb-3 hover:animate-[float_2s_ease-in-out_infinite] transition-all duration-300">
+          {game.icon}
+        </div>
+        <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2 font-[family-name:var(--font-geist-sans)]">
+          {game.title}
+        </h3>
+        <p
+          id={`game-${game.id}-description`}
+          className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed"
+        >
+          {game.description}
+        </p>
+      </div>
 
-          {/* バッジ群 */}
-          <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4 justify-center">
-            <div className="hover:scale-105 transition-transform duration-200">
-              <CategoryBadge category={game.category} />
-            </div>
-            <div className="hover:scale-105 transition-transform duration-200">
-              <DifficultyBadge difficulty={game.difficulty} />
-            </div>
-            <div className="hover:scale-105 transition-transform duration-200">
-              <StatusBadge status={game.status} />
-            </div>
-          </div>
+      {/* バッジ群 */}
+      <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4 justify-center">
+        <div className="hover:scale-105 transition-transform duration-200">
+          <CategoryBadge category={game.category} />
+        </div>
+        <div className="hover:scale-105 transition-transform duration-200">
+          <DifficultyBadge difficulty={game.difficulty} />
+        </div>
+        <div className="hover:scale-105 transition-transform duration-200">
+          <StatusBadge status={game.status} />
+        </div>
+      </div>
 
-          {/* タグ */}
-          <div className="flex flex-wrap gap-1 mb-4 justify-center">
-            {game.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full 
+      {/* タグ */}
+      <div className="flex flex-wrap gap-1 mb-4 justify-center">
+        {game.tags.map((tag, index) => (
+          <span
+            key={index}
+            className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full 
                        hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 
                        cursor-default hover:scale-105 transform"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
 
           {/* アクションボタン */}
           <div className="text-center">
             <div className="inline-block hover:scale-105 active:scale-95 transition-transform duration-200">
-              <Button variant="primary" size="sm">
+              <Button
+                variant="primary"
+                size="sm"
+              >
                 プレイする
               </Button>
             </div>

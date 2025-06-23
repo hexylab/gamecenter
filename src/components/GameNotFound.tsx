@@ -23,11 +23,13 @@ export function GameNotFound() {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
             お探しのゲームは存在しないか、削除された可能性があります。
           </p>
-
+          
           <div className="space-y-4">
             <div>
               <Link href="/">
-                <Button size="lg">← ホームに戻る</Button>
+                <Button size="lg">
+                  ← ホームに戻る
+                </Button>
               </Link>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
