@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Game } from "@/types/game";
 import {
   CategoryBadge,
@@ -14,6 +16,8 @@ interface GameCardProps {
 }
 
 export const GameCard: React.FC<GameCardProps> = ({ game }) => {
+  const router = useRouter();
+
   const handleCardClick = () => {
     if (game.status === "Coming Soon") {
       alert("このゲームは近日公開予定です！");
@@ -25,8 +29,8 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
       return;
     }
 
-    // Phase 4で実装予定: 実際のゲームページへの遷移
-    alert(`「${game.title}」は準備中です。実装をお待ちください！`);
+    // ゲーム詳細ページに遷移
+    router.push(game.route);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -39,27 +43,40 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const isDisabled = game.status !== "Available";
   const accessibleDescription = `${game.title}、${game.category}カテゴリ、難易度${game.difficulty}、${game.status === "Available" ? "利用可能" : game.status === "Coming Soon" ? "近日公開予定" : "メンテナンス中"}`;
 
+  // 利用可能なゲームはLinkでラップ、そうでなければdivのまま
+  const CardWrapper = ({ children }: { children: React.ReactNode }) => {
+    if (!isDisabled) {
+      return (
+        <Link href={game.route} className="block">
+          {children}
+        </Link>
+      );
+    }
+    return <>{children}</>;
+  };
+
   return (
-    <div
-      className={`
-        bg-white dark:bg-gray-800 
-        rounded-xl 
-        border border-gray-200 dark:border-gray-700 
-        p-4 sm:p-6 
-        ${
-          isDisabled
-            ? "opacity-60 cursor-not-allowed"
-            : "game-card-hover hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-        }
-      `}
-      onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={isDisabled ? -1 : 0}
-      role="button"
-      aria-label={accessibleDescription}
-      aria-disabled={isDisabled}
-      aria-describedby={`game-${game.id}-description`}
-    >
+    <CardWrapper>
+      <div
+        className={`
+          bg-white dark:bg-gray-800 
+          rounded-xl 
+          border border-gray-200 dark:border-gray-700 
+          p-4 sm:p-6 
+          ${
+            isDisabled
+              ? "opacity-60 cursor-not-allowed"
+              : "game-card-hover hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+          }
+        `}
+        onClick={isDisabled ? handleCardClick : undefined}
+        onKeyDown={isDisabled ? handleKeyDown : undefined}
+        tabIndex={isDisabled ? 0 : -1}
+        role={isDisabled ? "button" : undefined}
+        aria-label={isDisabled ? accessibleDescription : undefined}
+        aria-disabled={isDisabled}
+        aria-describedby={`game-${game.id}-description`}
+      >
       {/* ゲームアイコンとタイトル */}
       <div className="text-center mb-3 sm:mb-4">
         <div className="text-3xl sm:text-4xl mb-2 sm:mb-3 hover:animate-[float_2s_ease-in-out_infinite] transition-all duration-300">
@@ -112,10 +129,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
             variant={isDisabled ? "outline" : "primary"}
             size="sm"
             disabled={isDisabled}
-            onClick={(e) => {
+            onClick={isDisabled ? (e) => {
               e.stopPropagation();
               handleCardClick();
-            }}
+            } : undefined}
           >
             {game.status === "Available" && "プレイする"}
             {game.status === "Coming Soon" && "近日公開"}
@@ -123,6 +140,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </CardWrapper>
   );
 };
