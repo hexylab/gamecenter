@@ -3,6 +3,7 @@ import { Game } from "@/types/game";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { GuessTheNumber } from "@/components/games";
 
 interface GameDetailProps {
   game: Game;
@@ -66,7 +67,9 @@ export function GameDetail({ game }: GameDetailProps) {
             ゲームエリア
           </h2>
           
-          {game.status === "Available" ? (
+          {game.status === "Available" && game.id === "guess-the-number" ? (
+            <GuessTheNumber />
+          ) : game.status === "Available" ? (
             <div className="min-h-[400px] bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
               <div className="text-center">
                 <div className="text-4xl mb-4">🚧</div>
