@@ -15,7 +15,6 @@ export function GameDetail({ game }: GameDetailProps) {
     { label: game.title },
   ];
 
-
   return (
     <div className="min-h-screen bg-white dark:bg-black">
       <div className="max-w-6xl mx-auto px-4 py-8">
