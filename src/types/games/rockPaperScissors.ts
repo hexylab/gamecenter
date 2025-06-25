@@ -1,13 +1,13 @@
-export type Hand = 'rock' | 'paper' | 'scissors';
+export type Hand = "rock" | "paper" | "scissors";
 
-export type GameResult = 'win' | 'lose' | 'draw';
+export type GameResult = "win" | "lose" | "draw";
 
-export type GamePhase = 
-  | 'waiting'    // ゲーム開始前
-  | 'selecting'  // 手を選択中
-  | 'revealing'  // 結果表示中
-  | 'result'     // 結果確認中
-  | 'continuing'; // 連勝継続判断中
+export type GamePhase =
+  | "waiting" // ゲーム開始前
+  | "selecting" // 手を選択中
+  | "revealing" // 結果表示中
+  | "result" // 結果確認中
+  | "continuing"; // 連勝継続判断中
 
 export interface RockPaperScissorsState {
   playerHand: Hand | null;
@@ -44,32 +44,32 @@ export interface RockPaperScissorsStats {
 }
 
 export interface CPUStrategy {
-  name: 'random' | 'adaptive';
+  name: "random" | "adaptive";
   getNextHand: (playerHistory: Hand[]) => Hand;
 }
 
 export interface GameSettings {
   enableAnimation: boolean;
-  animationSpeed: 'slow' | 'normal' | 'fast';
+  animationSpeed: "slow" | "normal" | "fast";
   enableSound: boolean;
-  cpuStrategy: CPUStrategy['name'];
+  cpuStrategy: CPUStrategy["name"];
 }
 
 export const DEFAULT_SETTINGS: GameSettings = {
   enableAnimation: true,
-  animationSpeed: 'normal',
+  animationSpeed: "normal",
   enableSound: true,
-  cpuStrategy: 'random',
+  cpuStrategy: "random",
 };
 
 export const HAND_DISPLAY: Record<Hand, { emoji: string; name: string }> = {
-  rock: { emoji: '✊', name: 'グー' },
-  paper: { emoji: '✋', name: 'パー' },
-  scissors: { emoji: '✌️', name: 'チョキ' },
+  rock: { emoji: "✊", name: "グー" },
+  paper: { emoji: "✋", name: "パー" },
+  scissors: { emoji: "✌️", name: "チョキ" },
 };
 
 export const RESULT_MESSAGES: Record<GameResult, string> = {
-  win: '勝利！',
-  lose: '敗北...',
-  draw: '引き分け',
+  win: "勝利！",
+  lose: "敗北...",
+  draw: "引き分け",
 };

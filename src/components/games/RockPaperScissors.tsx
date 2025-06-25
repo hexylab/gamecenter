@@ -1,26 +1,28 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui';
-import { 
+import React, { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui";
+import {
   RockPaperScissorsState,
   RockPaperScissorsStats,
   RoundResult,
   Hand,
   GameResult,
   HAND_DISPLAY,
-  RESULT_MESSAGES
-} from '@/types/games/rockPaperScissors';
+  RESULT_MESSAGES,
+} from "@/types/games/rockPaperScissors";
 
 interface RockPaperScissorsProps {
   onStatsUpdate?: (stats: RockPaperScissorsStats) => void;
 }
 
-export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpdate }) => {
+export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({
+  onStatsUpdate,
+}) => {
   const [gameState, setGameState] = useState<RockPaperScissorsState>({
     playerHand: null,
     cpuHand: null,
-    gamePhase: 'waiting',
+    gamePhase: "waiting",
     gameResult: null,
     currentWinStreak: 0,
     gameStartTime: 0,
@@ -47,39 +49,45 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
 
   // 統計をローカルストレージから読み込み
   useEffect(() => {
-    const savedStats = localStorage.getItem('rockPaperScissorsStats');
+    const savedStats = localStorage.getItem("rockPaperScissorsStats");
     if (savedStats) {
       try {
         const parsedStats = JSON.parse(savedStats);
         setStats(parsedStats);
       } catch (error) {
-        console.error('Error loading stats:', error);
+        console.error("Error loading stats:", error);
       }
     }
   }, []);
 
   // 統計をローカルストレージに保存
-  const saveStats = useCallback((newStats: RockPaperScissorsStats) => {
-    localStorage.setItem('rockPaperScissorsStats', JSON.stringify(newStats));
-    onStatsUpdate?.(newStats);
-  }, [onStatsUpdate]);
+  const saveStats = useCallback(
+    (newStats: RockPaperScissorsStats) => {
+      localStorage.setItem("rockPaperScissorsStats", JSON.stringify(newStats));
+      onStatsUpdate?.(newStats);
+    },
+    [onStatsUpdate],
+  );
 
   // じゃんけんの勝敗判定
-  const determineWinner = useCallback((playerHand: Hand, cpuHand: Hand): GameResult => {
-    if (playerHand === cpuHand) return 'draw';
-    
-    const winConditions: Record<Hand, Hand> = {
-      rock: 'scissors',
-      paper: 'rock',
-      scissors: 'paper',
-    };
-    
-    return winConditions[playerHand] === cpuHand ? 'win' : 'lose';
-  }, []);
+  const determineWinner = useCallback(
+    (playerHand: Hand, cpuHand: Hand): GameResult => {
+      if (playerHand === cpuHand) return "draw";
+
+      const winConditions: Record<Hand, Hand> = {
+        rock: "scissors",
+        paper: "rock",
+        scissors: "paper",
+      };
+
+      return winConditions[playerHand] === cpuHand ? "win" : "lose";
+    },
+    [],
+  );
 
   // CPUの手を選択（ランダム戦略）
   const getCpuHand = useCallback((): Hand => {
-    const hands: Hand[] = ['rock', 'paper', 'scissors'];
+    const hands: Hand[] = ["rock", "paper", "scissors"];
     return hands[Math.floor(Math.random() * hands.length)];
   }, []);
 
@@ -88,7 +96,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
     setGameState({
       playerHand: null,
       cpuHand: null,
-      gamePhase: 'selecting',
+      gamePhase: "selecting",
       gameResult: null,
       currentWinStreak: 0,
       gameStartTime: Date.now(),
@@ -98,86 +106,92 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
   }, []);
 
   // プレイヤーの手を選択
-  const selectHand = useCallback((hand: Hand) => {
-    if (gameState.gamePhase !== 'selecting') return;
+  const selectHand = useCallback(
+    (hand: Hand) => {
+      if (gameState.gamePhase !== "selecting") return;
 
-    const cpuHand = getCpuHand();
-    const result = determineWinner(hand, cpuHand);
-    
-    const newRoundCount = gameState.roundCount + 1;
-    const newWinStreak = result === 'win' ? gameState.currentWinStreak + 1 : 0;
-    
-    // まず手の選択のみを設定（統計はまだ更新しない）
-    setGameState(prev => ({
-      ...prev,
-      playerHand: hand,
-      cpuHand,
-      gameResult: result,
-      gamePhase: 'revealing',
-      roundCount: newRoundCount,
-    }));
+      const cpuHand = getCpuHand();
+      const result = determineWinner(hand, cpuHand);
 
-    // 1.5秒後にCPUの手を表示し、結果フェーズに移行
-    setTimeout(() => {
-      setGameState(prev => ({ ...prev, gamePhase: 'result' }));
-      
-      // この時点で統計を更新
-      const roundResult: RoundResult = {
+      const newRoundCount = gameState.roundCount + 1;
+      const newWinStreak =
+        result === "win" ? gameState.currentWinStreak + 1 : 0;
+
+      // まず手の選択のみを設定（統計はまだ更新しない）
+      setGameState((prev) => ({
+        ...prev,
         playerHand: hand,
         cpuHand,
-        result,
-        roundNumber: newRoundCount,
-        timestamp: Date.now(),
-      };
+        gameResult: result,
+        gamePhase: "revealing",
+        roundCount: newRoundCount,
+      }));
 
-      setRoundHistory(prev => [...prev, roundResult]);
+      // 1.5秒後にCPUの手を表示し、結果フェーズに移行
+      setTimeout(() => {
+        setGameState((prev) => ({ ...prev, gamePhase: "result" }));
 
-      // 連勝数も結果表示時に更新
-      setGameState(prev => ({ ...prev, currentWinStreak: newWinStreak }));
+        // この時点で統計を更新
+        const roundResult: RoundResult = {
+          playerHand: hand,
+          cpuHand,
+          result,
+          roundNumber: newRoundCount,
+          timestamp: Date.now(),
+        };
 
-      // 統計を更新
-      const newStats: RockPaperScissorsStats = {
-        totalGames: result === 'lose' ? stats.totalGames + 1 : stats.totalGames,
-        wins: result === 'win' ? stats.wins + 1 : stats.wins,
-        losses: result === 'lose' ? stats.losses + 1 : stats.losses,
-        draws: result === 'draw' ? stats.draws + 1 : stats.draws,
-        winRate: 0, // 後で計算
-        maxWinStreak: Math.max(stats.maxWinStreak, newWinStreak),
-        totalRounds: stats.totalRounds + 1,
-        handFrequency: {
-          ...stats.handFrequency,
-          [hand]: stats.handFrequency[hand] + 1,
-        },
-        averageWinStreak: 0, // 後で計算
-      };
+        setRoundHistory((prev) => [...prev, roundResult]);
 
-      // 勝率と平均連勝を計算
-      const totalRounds = newStats.totalRounds;
-      if (totalRounds > 0) {
-        newStats.winRate = (newStats.wins / totalRounds) * 100;
-        newStats.averageWinStreak = newStats.totalGames > 0 ? newStats.wins / newStats.totalGames : 0;
-      }
+        // 連勝数も結果表示時に更新
+        setGameState((prev) => ({ ...prev, currentWinStreak: newWinStreak }));
 
-      setStats(newStats);
-      saveStats(newStats);
-    }, 1500);
-  }, [gameState, stats, getCpuHand, determineWinner, saveStats]);
+        // 統計を更新
+        const newStats: RockPaperScissorsStats = {
+          totalGames:
+            result === "lose" ? stats.totalGames + 1 : stats.totalGames,
+          wins: result === "win" ? stats.wins + 1 : stats.wins,
+          losses: result === "lose" ? stats.losses + 1 : stats.losses,
+          draws: result === "draw" ? stats.draws + 1 : stats.draws,
+          winRate: 0, // 後で計算
+          maxWinStreak: Math.max(stats.maxWinStreak, newWinStreak),
+          totalRounds: stats.totalRounds + 1,
+          handFrequency: {
+            ...stats.handFrequency,
+            [hand]: stats.handFrequency[hand] + 1,
+          },
+          averageWinStreak: 0, // 後で計算
+        };
+
+        // 勝率と平均連勝を計算
+        const totalRounds = newStats.totalRounds;
+        if (totalRounds > 0) {
+          newStats.winRate = (newStats.wins / totalRounds) * 100;
+          newStats.averageWinStreak =
+            newStats.totalGames > 0 ? newStats.wins / newStats.totalGames : 0;
+        }
+
+        setStats(newStats);
+        saveStats(newStats);
+      }, 1500);
+    },
+    [gameState, stats, getCpuHand, determineWinner, saveStats],
+  );
 
   // 次のラウンドを開始
   const nextRound = useCallback(() => {
-    if (gameState.gameResult === 'lose') {
+    if (gameState.gameResult === "lose") {
       // 敗北時はゲーム終了、新しいゲームへ
-      setGameState(prev => ({ ...prev, gamePhase: 'waiting' }));
+      setGameState((prev) => ({ ...prev, gamePhase: "waiting" }));
       return;
     }
-    
+
     // 勝利または引き分けの場合は継続
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       playerHand: null,
       cpuHand: null,
       gameResult: null,
-      gamePhase: 'selecting',
+      gamePhase: "selecting",
     }));
   }, [gameState.gameResult]);
 
@@ -186,7 +200,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
     <Button
       key={hand}
       onClick={() => selectHand(hand)}
-      disabled={gameState.gamePhase !== 'selecting'}
+      disabled={gameState.gamePhase !== "selecting"}
       size="lg"
       className="flex-1 h-24 text-4xl flex flex-col items-center justify-center gap-2 transition-all duration-200 hover:scale-105"
     >
@@ -197,14 +211,14 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
 
   // 結果メッセージの取得
   const getResultMessage = () => {
-    if (!gameState.gameResult) return '';
-    
+    if (!gameState.gameResult) return "";
+
     const baseMessage = RESULT_MESSAGES[gameState.gameResult];
-    
-    if (gameState.gameResult === 'win' && gameState.currentWinStreak > 1) {
+
+    if (gameState.gameResult === "win" && gameState.currentWinStreak > 1) {
       return `${baseMessage} ${gameState.currentWinStreak}連勝中！`;
     }
-    
+
     return baseMessage;
   };
 
@@ -228,24 +242,20 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       </div>
 
       {/* ゲーム状態: 待機中 */}
-      {gameState.gamePhase === 'waiting' && (
+      {gameState.gamePhase === "waiting" && (
         <div className="text-center">
           <div className="text-6xl mb-6">🥊</div>
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
             コンピューターとじゃんけん勝負を始めますか？
           </p>
-          <Button 
-            onClick={startNewGame}
-            size="lg"
-            className="px-8 py-3"
-          >
+          <Button onClick={startNewGame} size="lg" className="px-8 py-3">
             ゲームスタート
           </Button>
         </div>
       )}
 
       {/* ゲーム状態: 手を選択中 */}
-      {gameState.gamePhase === 'selecting' && (
+      {gameState.gamePhase === "selecting" && (
         <div className="max-w-md mx-auto">
           <div className="text-center mb-6">
             <div className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -257,24 +267,31 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
           </div>
 
           <div className="flex gap-4 mb-6">
-            {(['rock', 'paper', 'scissors'] as Hand[]).map(renderHandButton)}
+            {(["rock", "paper", "scissors"] as Hand[]).map(renderHandButton)}
           </div>
         </div>
       )}
 
       {/* ゲーム状態: 結果表示中 */}
-      {(gameState.gamePhase === 'revealing' || gameState.gamePhase === 'result') && (
+      {(gameState.gamePhase === "revealing" ||
+        gameState.gamePhase === "result") && (
         <div className="max-w-2xl mx-auto">
           {/* プレイヤー vs CPU */}
           <div className="grid grid-cols-3 gap-8 items-center mb-8">
             {/* プレイヤー */}
             <div className="text-center">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">あなた</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                あなた
+              </div>
               <div className="text-8xl mb-2">
-                {gameState.playerHand ? HAND_DISPLAY[gameState.playerHand].emoji : '❓'}
+                {gameState.playerHand
+                  ? HAND_DISPLAY[gameState.playerHand].emoji
+                  : "❓"}
               </div>
               <div className="font-semibold text-gray-900 dark:text-white">
-                {gameState.playerHand ? HAND_DISPLAY[gameState.playerHand].name : ''}
+                {gameState.playerHand
+                  ? HAND_DISPLAY[gameState.playerHand].name
+                  : ""}
               </div>
             </div>
 
@@ -285,54 +302,58 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
 
             {/* CPU */}
             <div className="text-center">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">CPU</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                CPU
+              </div>
               <div className="text-8xl mb-2">
-                {gameState.gamePhase === 'revealing' ? '❓' : 
-                 gameState.cpuHand ? HAND_DISPLAY[gameState.cpuHand].emoji : '❓'}
+                {gameState.gamePhase === "revealing"
+                  ? "❓"
+                  : gameState.cpuHand
+                    ? HAND_DISPLAY[gameState.cpuHand].emoji
+                    : "❓"}
               </div>
               <div className="font-semibold text-gray-900 dark:text-white">
-                {gameState.gamePhase === 'result' && gameState.cpuHand ? 
-                 HAND_DISPLAY[gameState.cpuHand].name : ''}
+                {gameState.gamePhase === "result" && gameState.cpuHand
+                  ? HAND_DISPLAY[gameState.cpuHand].name
+                  : ""}
               </div>
             </div>
           </div>
 
           {/* 結果表示 */}
-          {gameState.gamePhase === 'result' && gameState.gameResult && (
+          {gameState.gamePhase === "result" && gameState.gameResult && (
             <div className="text-center mb-8">
-              <div className={`text-4xl font-bold mb-4 ${
-                gameState.gameResult === 'win' ? 'text-green-600 dark:text-green-400' :
-                gameState.gameResult === 'lose' ? 'text-red-600 dark:text-red-400' :
-                'text-yellow-600 dark:text-yellow-400'
-              }`}>
+              <div
+                className={`text-4xl font-bold mb-4 ${
+                  gameState.gameResult === "win"
+                    ? "text-green-600 dark:text-green-400"
+                    : gameState.gameResult === "lose"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-yellow-600 dark:text-yellow-400"
+                }`}
+              >
                 {getResultMessage()}
               </div>
-              
-              {gameState.gameResult === 'win' && gameState.currentWinStreak === stats.maxWinStreak && gameState.currentWinStreak > 1 && (
-                <div className="text-lg text-purple-600 dark:text-purple-400 mb-4">
-                  🏆 新記録達成！
-                </div>
-              )}
+
+              {gameState.gameResult === "win" &&
+                gameState.currentWinStreak === stats.maxWinStreak &&
+                gameState.currentWinStreak > 1 && (
+                  <div className="text-lg text-purple-600 dark:text-purple-400 mb-4">
+                    🏆 新記録達成！
+                  </div>
+                )}
 
               <div className="flex gap-4 justify-center">
-                {gameState.gameResult === 'lose' ? (
-                  <Button 
-                    onClick={startNewGame}
-                    size="lg"
-                    className="px-6"
-                  >
+                {gameState.gameResult === "lose" ? (
+                  <Button onClick={startNewGame} size="lg" className="px-6">
                     新しいゲームを開始
                   </Button>
                 ) : (
                   <>
-                    <Button 
-                      onClick={nextRound}
-                      size="lg"
-                      className="px-6"
-                    >
+                    <Button onClick={nextRound} size="lg" className="px-6">
                       次のラウンド
                     </Button>
-                    <Button 
+                    <Button
                       onClick={startNewGame}
                       variant="outline"
                       size="lg"
@@ -355,28 +376,33 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
             📜 最近のラウンド
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-40 overflow-y-auto">
-            {roundHistory.slice(-6).reverse().map((round) => (
-              <div
-                key={round.timestamp}
-                className={`p-3 rounded-lg text-sm ${
-                  round.result === 'win'
-                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                    : round.result === 'lose'
-                    ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                    : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">R{round.roundNumber}</span>
-                  <span className="text-xs">{RESULT_MESSAGES[round.result]}</span>
+            {roundHistory
+              .slice(-6)
+              .reverse()
+              .map((round) => (
+                <div
+                  key={round.timestamp}
+                  className={`p-3 rounded-lg text-sm ${
+                    round.result === "win"
+                      ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                      : round.result === "lose"
+                        ? "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+                        : "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">R{round.roundNumber}</span>
+                    <span className="text-xs">
+                      {RESULT_MESSAGES[round.result]}
+                    </span>
+                  </div>
+                  <div className="flex justify-center items-center gap-2 mt-1">
+                    <span>{HAND_DISPLAY[round.playerHand].emoji}</span>
+                    <span>vs</span>
+                    <span>{HAND_DISPLAY[round.cpuHand].emoji}</span>
+                  </div>
                 </div>
-                <div className="flex justify-center items-center gap-2 mt-1">
-                  <span>{HAND_DISPLAY[round.playerHand].emoji}</span>
-                  <span>vs</span>
-                  <span>{HAND_DISPLAY[round.cpuHand].emoji}</span>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
@@ -432,19 +458,25 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
                 <div className="text-xl font-bold text-green-600 dark:text-green-400">
                   {stats.wins}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">勝利</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  勝利
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-xl font-bold text-red-600 dark:text-red-400">
                   {stats.losses}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">敗北</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  敗北
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
                   {stats.draws}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">引き分け</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  引き分け
+                </div>
               </div>
             </div>
           </div>
@@ -455,9 +487,11 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
               使用した手の頻度
             </h4>
             <div className="flex justify-center gap-6">
-              {(['rock', 'paper', 'scissors'] as Hand[]).map(hand => (
+              {(["rock", "paper", "scissors"] as Hand[]).map((hand) => (
                 <div key={hand} className="text-center">
-                  <div className="text-3xl mb-1">{HAND_DISPLAY[hand].emoji}</div>
+                  <div className="text-3xl mb-1">
+                    {HAND_DISPLAY[hand].emoji}
+                  </div>
                   <div className="text-lg font-semibold text-gray-900 dark:text-white">
                     {stats.handFrequency[hand]}
                   </div>

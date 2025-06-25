@@ -1,2 +1,2 @@
-export { GuessTheNumber } from './GuessTheNumber';
-export { RockPaperScissors } from './RockPaperScissors';
+export { GuessTheNumber } from "./GuessTheNumber";
+export { RockPaperScissors } from "./RockPaperScissors";

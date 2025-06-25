@@ -43,4 +43,3 @@ export default async function GamePage({ params }: GamePageProps) {
 
   return <GameDetail game={game} />;
 }
-
