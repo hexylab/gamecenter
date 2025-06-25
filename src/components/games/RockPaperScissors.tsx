@@ -218,7 +218,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
         <p className="text-gray-600 dark:text-gray-300">
           コンピューターとじゃんけん勝負！連勝記録に挑戦しよう！
         </p>
-        {gameState.currentWinStreak > 0 && gameState.gamePhase !== 'revealing' && (
+        {gameState.currentWinStreak > 0 && (
           <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
             <span className="text-lg font-bold text-yellow-800 dark:text-yellow-200">
               🔥 現在 {gameState.currentWinStreak} 連勝中！
@@ -349,7 +349,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       )}
 
       {/* ラウンド履歴 */}
-      {roundHistory.length > 0 && gameState.gamePhase !== 'revealing' && (
+      {roundHistory.length > 0 && (
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             📜 最近のラウンド
@@ -382,7 +382,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       )}
 
       {/* 統計情報 */}
-      {stats.totalRounds > 0 && gameState.gamePhase !== 'revealing' && (
+      {stats.totalRounds > 0 && (
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
             📊 統計情報
