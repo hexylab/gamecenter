@@ -3,7 +3,7 @@ import { Game } from "@/types/game";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { GuessTheNumber } from "@/components/games";
+import { GuessTheNumber, RockPaperScissors } from "@/components/games";
 
 interface GameDetailProps {
   game: Game;
@@ -65,9 +65,12 @@ export function GameDetail({ game }: GameDetailProps) {
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
             ゲームエリア
           </h2>
-          
+
           {game.status === "Available" && game.id === "guess-the-number" ? (
             <GuessTheNumber />
+          ) : game.status === "Available" &&
+            game.id === "rock-paper-scissors" ? (
+            <RockPaperScissors />
           ) : game.status === "Available" ? (
             <div className="min-h-[400px] bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
               <div className="text-center">
@@ -76,7 +79,8 @@ export function GameDetail({ game }: GameDetailProps) {
                   Coming Soon
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  このゲームは現在開発中です。<br />
+                  このゲームは現在開発中です。
+                  <br />
                   近日中にプレイできるようになります！
                 </p>
               </div>
@@ -106,25 +110,33 @@ export function GameDetail({ game }: GameDetailProps) {
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 カテゴリ
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">{game.category}</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {game.category}
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 難易度
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">{game.difficulty}</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {game.difficulty}
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 作成日
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">{game.createdAt}</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {game.createdAt}
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 更新日
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">{game.updatedAt}</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {game.updatedAt}
+              </p>
             </div>
           </div>
         </div>

@@ -1,25 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui';
-import { 
-  GuessTheNumberState, 
-  GuessResult, 
+import React, { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui";
+import {
+  GuessTheNumberState,
+  GuessResult,
   GuessTheNumberStats,
-  DEFAULT_SETTINGS 
-} from '@/types/games/guessTheNumber';
+  DEFAULT_SETTINGS,
+} from "@/types/games/guessTheNumber";
 
 interface GuessTheNumberProps {
   onStatsUpdate?: (stats: GuessTheNumberStats) => void;
 }
 
-export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate }) => {
+export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({
+  onStatsUpdate,
+}) => {
   const [gameState, setGameState] = useState<GuessTheNumberState>({
     targetNumber: 0,
-    currentGuess: '',
+    currentGuess: "",
     attempts: 0,
     guessHistory: [],
-    gameStatus: 'waiting',
+    gameStatus: "waiting",
     startTime: 0,
     bestScore: undefined,
   });
@@ -34,142 +36,164 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
     winRate: 0,
   });
 
-  const [inputError, setInputError] = useState<string>('');
+  const [inputError, setInputError] = useState<string>("");
 
   // ゲーム統計をローカルストレージから読み込み
   useEffect(() => {
-    const savedStats = localStorage.getItem('guessTheNumberStats');
+    const savedStats = localStorage.getItem("guessTheNumberStats");
     if (savedStats) {
       try {
         const parsedStats = JSON.parse(savedStats);
         setStats(parsedStats);
-        setGameState(prev => ({ ...prev, bestScore: parsedStats.bestScore }));
+        setGameState((prev) => ({ ...prev, bestScore: parsedStats.bestScore }));
       } catch (error) {
-        console.error('Error loading stats:', error);
+        console.error("Error loading stats:", error);
       }
     }
   }, []);
 
   // 統計をローカルストレージに保存
-  const saveStats = useCallback((newStats: GuessTheNumberStats) => {
-    localStorage.setItem('guessTheNumberStats', JSON.stringify(newStats));
-    onStatsUpdate?.(newStats);
-  }, [onStatsUpdate]);
+  const saveStats = useCallback(
+    (newStats: GuessTheNumberStats) => {
+      localStorage.setItem("guessTheNumberStats", JSON.stringify(newStats));
+      onStatsUpdate?.(newStats);
+    },
+    [onStatsUpdate],
+  );
 
   // 新しいゲームを開始
   const startNewGame = useCallback(() => {
-    const targetNumber = Math.floor(Math.random() * (DEFAULT_SETTINGS.maxNumber - DEFAULT_SETTINGS.minNumber + 1)) + DEFAULT_SETTINGS.minNumber;
-    
+    const targetNumber =
+      Math.floor(
+        Math.random() *
+          (DEFAULT_SETTINGS.maxNumber - DEFAULT_SETTINGS.minNumber + 1),
+      ) + DEFAULT_SETTINGS.minNumber;
+
     setGameState({
       targetNumber,
-      currentGuess: '',
+      currentGuess: "",
       attempts: 0,
       guessHistory: [],
-      gameStatus: 'playing',
+      gameStatus: "playing",
       startTime: Date.now(),
       endTime: undefined,
       bestScore: gameState.bestScore,
     });
-    
-    setInputError('');
+
+    setInputError("");
   }, [gameState.bestScore]);
 
   // 推測を送信
   const submitGuess = useCallback(() => {
     const guess = parseInt(gameState.currentGuess);
-    
+
     // 入力検証
     if (isNaN(guess)) {
-      setInputError('有効な数字を入力してください');
+      setInputError("有効な数字を入力してください");
       return;
     }
-    
-    if (guess < DEFAULT_SETTINGS.minNumber || guess > DEFAULT_SETTINGS.maxNumber) {
-      setInputError(`${DEFAULT_SETTINGS.minNumber}から${DEFAULT_SETTINGS.maxNumber}の間の数字を入力してください`);
+
+    if (
+      guess < DEFAULT_SETTINGS.minNumber ||
+      guess > DEFAULT_SETTINGS.maxNumber
+    ) {
+      setInputError(
+        `${DEFAULT_SETTINGS.minNumber}から${DEFAULT_SETTINGS.maxNumber}の間の数字を入力してください`,
+      );
       return;
     }
-    
-    setInputError('');
-    
+
+    setInputError("");
+
     const newAttempts = gameState.attempts + 1;
-    let result: GuessResult['result'];
-    
+    let result: GuessResult["result"];
+
     if (guess === gameState.targetNumber) {
-      result = 'correct';
+      result = "correct";
     } else if (guess > gameState.targetNumber) {
-      result = 'too-high';
+      result = "too-high";
     } else {
-      result = 'too-low';
+      result = "too-low";
     }
-    
+
     const guessResult: GuessResult = {
       guess,
       result,
       attemptNumber: newAttempts,
       timestamp: Date.now(),
     };
-    
+
     const newGuessHistory = [...gameState.guessHistory, guessResult];
-    
+
     // ゲーム状態を更新
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
-      currentGuess: '',
+      currentGuess: "",
       attempts: newAttempts,
       guessHistory: newGuessHistory,
-      gameStatus: result === 'correct' ? 'won' : 'playing',
-      endTime: result === 'correct' ? Date.now() : undefined,
+      gameStatus: result === "correct" ? "won" : "playing",
+      endTime: result === "correct" ? Date.now() : undefined,
     }));
-    
+
     // 正解の場合、統計を更新
-    if (result === 'correct') {
+    if (result === "correct") {
       const gameTime = (Date.now() - gameState.startTime) / 1000;
-      
+
       const newStats: GuessTheNumberStats = {
         totalGames: stats.totalGames + 1,
         gamesWon: stats.gamesWon + 1,
         totalAttempts: stats.totalAttempts + newAttempts,
-        bestScore: Math.min(stats.bestScore === Infinity ? newAttempts : stats.bestScore, newAttempts),
-        averageAttempts: (stats.totalAttempts + newAttempts) / (stats.totalGames + 1),
-        fastestTime: Math.min(stats.fastestTime === Infinity ? gameTime : stats.fastestTime, gameTime),
+        bestScore: Math.min(
+          stats.bestScore === Infinity ? newAttempts : stats.bestScore,
+          newAttempts,
+        ),
+        averageAttempts:
+          (stats.totalAttempts + newAttempts) / (stats.totalGames + 1),
+        fastestTime: Math.min(
+          stats.fastestTime === Infinity ? gameTime : stats.fastestTime,
+          gameTime,
+        ),
         winRate: ((stats.gamesWon + 1) / (stats.totalGames + 1)) * 100,
       };
-      
+
       setStats(newStats);
       saveStats(newStats);
     }
   }, [gameState, stats, saveStats]);
 
   // Enter キーでの送信
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && gameState.gameStatus === 'playing') {
-      submitGuess();
-    }
-  }, [gameState.gameStatus, submitGuess]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && gameState.gameStatus === "playing") {
+        submitGuess();
+      }
+    },
+    [gameState.gameStatus, submitGuess],
+  );
 
   // 結果メッセージを取得
   const getResultMessage = (result: GuessResult) => {
     switch (result.result) {
-      case 'too-high':
+      case "too-high":
         return `${result.guess} は大きすぎます`;
-      case 'too-low':
+      case "too-low":
         return `${result.guess} は小さすぎます`;
-      case 'correct':
+      case "correct":
         return `🎉 正解！ ${result.guess} が答えでした！`;
     }
   };
 
   // ヒントメッセージを取得
   const getHintMessage = () => {
-    if (gameState.guessHistory.length === 0) return '';
-    
+    if (gameState.guessHistory.length === 0) return "";
+
     const lastGuess = gameState.guessHistory[gameState.guessHistory.length - 1];
     const diff = Math.abs(lastGuess.guess - gameState.targetNumber);
-    
-    if (diff <= 5) return '🔥 とても近いです！';
-    if (diff <= 10) return '🌡️ 近いです';
-    if (diff <= 20) return '❄️ 少し遠いです';
-    return '🥶 まだ遠いです';
+
+    if (diff <= 5) return "🔥 とても近いです！";
+    if (diff <= 10) return "🌡️ 近いです";
+    if (diff <= 20) return "❄️ 少し遠いです";
+    return "🥶 まだ遠いです";
   };
 
   return (
@@ -180,29 +204,26 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
           🎯 数当てゲーム
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
-          {DEFAULT_SETTINGS.minNumber}から{DEFAULT_SETTINGS.maxNumber}の間の数字を当ててください！
+          {DEFAULT_SETTINGS.minNumber}から{DEFAULT_SETTINGS.maxNumber}
+          の間の数字を当ててください！
         </p>
       </div>
 
       {/* ゲーム状態 */}
-      {gameState.gameStatus === 'waiting' && (
+      {gameState.gameStatus === "waiting" && (
         <div className="text-center">
           <div className="text-6xl mb-6">🎲</div>
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
             ゲームを開始する準備はできましたか？
           </p>
-          <Button 
-            onClick={startNewGame}
-            size="lg"
-            className="px-8 py-3"
-          >
+          <Button onClick={startNewGame} size="lg" className="px-8 py-3">
             ゲームスタート
           </Button>
         </div>
       )}
 
       {/* ゲームプレイ中 */}
-      {gameState.gameStatus === 'playing' && (
+      {gameState.gameStatus === "playing" && (
         <div className="max-w-md mx-auto">
           <div className="text-center mb-6">
             <div className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -221,7 +242,12 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
               <input
                 type="number"
                 value={gameState.currentGuess}
-                onChange={(e) => setGameState(prev => ({ ...prev, currentGuess: e.target.value }))}
+                onChange={(e) =>
+                  setGameState((prev) => ({
+                    ...prev,
+                    currentGuess: e.target.value,
+                  }))
+                }
                 onKeyPress={handleKeyPress}
                 placeholder={`${DEFAULT_SETTINGS.minNumber}〜${DEFAULT_SETTINGS.maxNumber}`}
                 className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
@@ -231,7 +257,7 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
                 min={DEFAULT_SETTINGS.minNumber}
                 max={DEFAULT_SETTINGS.maxNumber}
               />
-              <Button 
+              <Button
                 onClick={submitGuess}
                 disabled={!gameState.currentGuess.trim()}
                 size="lg"
@@ -258,11 +284,11 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
                   <div
                     key={index}
                     className={`p-3 rounded-lg text-center font-medium ${
-                      guess.result === 'correct'
-                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : guess.result === 'too-high'
-                        ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                        : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                      guess.result === "correct"
+                        ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                        : guess.result === "too-high"
+                          ? "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+                          : "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                     }`}
                   >
                     {getResultMessage(guess)}
@@ -275,7 +301,7 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
       )}
 
       {/* ゲーム勝利 */}
-      {gameState.gameStatus === 'won' && (
+      {gameState.gameStatus === "won" && (
         <div className="text-center">
           <div className="text-6xl mb-4">🎉</div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -284,7 +310,7 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
             {gameState.attempts}回で正解しました！
           </p>
-          
+
           {/* ゲーム結果 */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 max-w-md mx-auto">
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -297,21 +323,32 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
               <div>
                 <div className="text-gray-600 dark:text-gray-400">時間</div>
                 <div className="font-semibold text-gray-900 dark:text-white">
-                  {gameState.endTime ? Math.round((gameState.endTime - gameState.startTime) / 1000) : 0}秒
+                  {gameState.endTime
+                    ? Math.round(
+                        (gameState.endTime - gameState.startTime) / 1000,
+                      )
+                    : 0}
+                  秒
                 </div>
               </div>
               {gameState.bestScore && gameState.bestScore !== Infinity && (
                 <>
                   <div>
-                    <div className="text-gray-600 dark:text-gray-400">最少記録</div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      最少記録
+                    </div>
                     <div className="font-semibold text-gray-900 dark:text-white">
                       {gameState.bestScore}回
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-600 dark:text-gray-400">今回の評価</div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      今回の評価
+                    </div>
                     <div className="font-semibold text-gray-900 dark:text-white">
-                      {gameState.attempts <= gameState.bestScore ? '🏆新記録！' : '👍良い結果！'}
+                      {gameState.attempts <= gameState.bestScore
+                        ? "🏆新記録！"
+                        : "👍良い結果！"}
                     </div>
                   </div>
                 </>
@@ -319,11 +356,7 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
             </div>
           </div>
 
-          <Button 
-            onClick={startNewGame}
-            size="lg"
-            className="px-8 py-3"
-          >
+          <Button onClick={startNewGame} size="lg" className="px-8 py-3">
             もう一度プレイ
           </Button>
         </div>
@@ -346,7 +379,7 @@ export const GuessTheNumber: React.FC<GuessTheNumberProps> = ({ onStatsUpdate })
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {stats.bestScore === Infinity ? '---' : stats.bestScore}
+                {stats.bestScore === Infinity ? "---" : stats.bestScore}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 最少試行回数

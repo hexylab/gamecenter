@@ -11,16 +11,16 @@ export interface GuessTheNumberState {
 
 export interface GuessResult {
   guess: number;
-  result: 'too-high' | 'too-low' | 'correct';
+  result: "too-high" | "too-low" | "correct";
   attemptNumber: number;
   timestamp: number;
 }
 
-export type GameStatus = 
-  | 'waiting' // ゲーム開始前
-  | 'playing' // プレイ中
-  | 'won'     // 正解
-  | 'paused'; // 一時停止
+export type GameStatus =
+  | "waiting" // ゲーム開始前
+  | "playing" // プレイ中
+  | "won" // 正解
+  | "paused"; // 一時停止
 
 export interface GuessTheNumberStats {
   totalGames: number;

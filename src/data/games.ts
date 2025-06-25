@@ -5,7 +5,8 @@ export const gameTemplates: Game[] = [
   {
     id: "guess-the-number",
     title: "数当てゲーム",
-    description: "1から100までの数字を推測するシンプルなゲームです。コンピューターが選んだ数字を最小回数で当てましょう！",
+    description:
+      "1から100までの数字を推測するシンプルなゲームです。コンピューターが選んだ数字を最小回数で当てましょう！",
     icon: "🎯",
     category: "Casual",
     route: "/games/guess-the-number",
@@ -18,20 +19,22 @@ export const gameTemplates: Game[] = [
   {
     id: "rock-paper-scissors",
     title: "じゃんけんゲーム",
-    description: "コンピューターとじゃんけん勝負！連勝記録に挑戦して、じゃんけんマスターを目指しましょう。",
+    description:
+      "コンピューターとじゃんけん勝負！連勝記録に挑戦して、じゃんけんマスターを目指しましょう。",
     icon: "✂️",
     category: "Casual",
     route: "/games/rock-paper-scissors",
     difficulty: "Easy",
-    status: "Coming Soon",
+    status: "Available",
     tags: ["じゃんけん", "対戦", "運", "シンプル"],
     createdAt: "2025-06-22",
-    updatedAt: "2025-06-23",
+    updatedAt: "2025-06-25",
   },
   {
     id: "memory-game",
     title: "記憶ゲーム",
-    description: "カードの配置を覚えて、同じペアを見つける記憶力ゲームです。集中力と記憶力を鍛えましょう！",
+    description:
+      "カードの配置を覚えて、同じペアを見つける記憶力ゲームです。集中力と記憶力を鍛えましょう！",
     icon: "🧩",
     category: "Puzzle",
     route: "/games/memory-game",
@@ -44,7 +47,8 @@ export const gameTemplates: Game[] = [
   {
     id: "typing-game",
     title: "タイピングゲーム",
-    description: "制限時間内に正確にタイピングしてスコアを競うゲームです。速度と正確性の両方が重要です！",
+    description:
+      "制限時間内に正確にタイピングしてスコアを競うゲームです。速度と正確性の両方が重要です！",
     icon: "⌨️",
     category: "Arcade",
     route: "/games/typing-game",
@@ -57,7 +61,8 @@ export const gameTemplates: Game[] = [
   {
     id: "snake-game",
     title: "スネークゲーム",
-    description: "古典的なスネークゲーム！食べ物を食べて成長しながら、自分の体にぶつからないよう注意して進みましょう。",
+    description:
+      "古典的なスネークゲーム！食べ物を食べて成長しながら、自分の体にぶつからないよう注意して進みましょう。",
     icon: "🐍",
     category: "Arcade",
     route: "/games/snake-game",
@@ -70,7 +75,8 @@ export const gameTemplates: Game[] = [
   {
     id: "tetris-like",
     title: "テトリス風ゲーム",
-    description: "落下するブロックを組み合わせてラインを消すパズルゲーム。高得点を目指して戦略的に配置しましょう！",
+    description:
+      "落下するブロックを組み合わせてラインを消すパズルゲーム。高得点を目指して戦略的に配置しましょう！",
     icon: "🧱",
     category: "Puzzle",
     route: "/games/tetris-like",
