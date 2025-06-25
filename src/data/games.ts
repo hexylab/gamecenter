@@ -23,10 +23,10 @@ export const gameTemplates: Game[] = [
     category: "Casual",
     route: "/games/rock-paper-scissors",
     difficulty: "Easy",
-    status: "Coming Soon",
+    status: "Available",
     tags: ["じゃんけん", "対戦", "運", "シンプル"],
     createdAt: "2025-06-22",
-    updatedAt: "2025-06-23",
+    updatedAt: "2025-06-25",
   },
   {
     id: "memory-game",

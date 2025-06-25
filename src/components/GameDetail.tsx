@@ -3,7 +3,7 @@ import { Game } from "@/types/game";
 import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { GuessTheNumber } from "@/components/games";
+import { GuessTheNumber, RockPaperScissors } from "@/components/games";
 
 interface GameDetailProps {
   game: Game;
@@ -68,6 +68,8 @@ export function GameDetail({ game }: GameDetailProps) {
           
           {game.status === "Available" && game.id === "guess-the-number" ? (
             <GuessTheNumber />
+          ) : game.status === "Available" && game.id === "rock-paper-scissors" ? (
+            <RockPaperScissors />
           ) : game.status === "Available" ? (
             <div className="min-h-[400px] bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
               <div className="text-center">
