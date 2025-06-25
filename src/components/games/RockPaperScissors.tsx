@@ -107,57 +107,60 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
     const newRoundCount = gameState.roundCount + 1;
     const newWinStreak = result === 'win' ? gameState.currentWinStreak + 1 : 0;
     
-    // ラウンド結果を記録
-    const roundResult: RoundResult = {
-      playerHand: hand,
-      cpuHand,
-      result,
-      roundNumber: newRoundCount,
-      timestamp: Date.now(),
-    };
-
-    setRoundHistory(prev => [...prev, roundResult]);
-
+    // まず手の選択のみを設定（統計はまだ更新しない）
     setGameState(prev => ({
       ...prev,
       playerHand: hand,
       cpuHand,
       gameResult: result,
       gamePhase: 'revealing',
-      currentWinStreak: newWinStreak,
       roundCount: newRoundCount,
     }));
 
-    // アニメーション後に結果表示
+    // 1.5秒後にCPUの手を表示し、結果フェーズに移行
     setTimeout(() => {
       setGameState(prev => ({ ...prev, gamePhase: 'result' }));
+      
+      // この時点で統計を更新
+      const roundResult: RoundResult = {
+        playerHand: hand,
+        cpuHand,
+        result,
+        roundNumber: newRoundCount,
+        timestamp: Date.now(),
+      };
+
+      setRoundHistory(prev => [...prev, roundResult]);
+
+      // 連勝数も結果表示時に更新
+      setGameState(prev => ({ ...prev, currentWinStreak: newWinStreak }));
+
+      // 統計を更新
+      const newStats: RockPaperScissorsStats = {
+        totalGames: result === 'lose' ? stats.totalGames + 1 : stats.totalGames,
+        wins: result === 'win' ? stats.wins + 1 : stats.wins,
+        losses: result === 'lose' ? stats.losses + 1 : stats.losses,
+        draws: result === 'draw' ? stats.draws + 1 : stats.draws,
+        winRate: 0, // 後で計算
+        maxWinStreak: Math.max(stats.maxWinStreak, newWinStreak),
+        totalRounds: stats.totalRounds + 1,
+        handFrequency: {
+          ...stats.handFrequency,
+          [hand]: stats.handFrequency[hand] + 1,
+        },
+        averageWinStreak: 0, // 後で計算
+      };
+
+      // 勝率と平均連勝を計算
+      const totalGames = newStats.totalGames;
+      if (totalGames > 0) {
+        newStats.winRate = (newStats.wins / totalGames) * 100;
+        newStats.averageWinStreak = newStats.wins / totalGames;
+      }
+
+      setStats(newStats);
+      saveStats(newStats);
     }, 1500);
-
-    // 統計を更新
-    const newStats: RockPaperScissorsStats = {
-      totalGames: result === 'lose' ? stats.totalGames + 1 : stats.totalGames,
-      wins: result === 'win' ? stats.wins + 1 : stats.wins,
-      losses: result === 'lose' ? stats.losses + 1 : stats.losses,
-      draws: result === 'draw' ? stats.draws + 1 : stats.draws,
-      winRate: 0, // 後で計算
-      maxWinStreak: Math.max(stats.maxWinStreak, newWinStreak),
-      totalRounds: stats.totalRounds + 1,
-      handFrequency: {
-        ...stats.handFrequency,
-        [hand]: stats.handFrequency[hand] + 1,
-      },
-      averageWinStreak: 0, // 後で計算
-    };
-
-    // 勝率と平均連勝を計算
-    const totalGames = newStats.totalGames;
-    if (totalGames > 0) {
-      newStats.winRate = (newStats.wins / totalGames) * 100;
-      newStats.averageWinStreak = newStats.wins / totalGames;
-    }
-
-    setStats(newStats);
-    saveStats(newStats);
   }, [gameState, stats, getCpuHand, determineWinner, saveStats]);
 
   // 次のラウンドを開始
@@ -215,7 +218,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
         <p className="text-gray-600 dark:text-gray-300">
           コンピューターとじゃんけん勝負！連勝記録に挑戦しよう！
         </p>
-        {gameState.currentWinStreak > 0 && (
+        {gameState.currentWinStreak > 0 && gameState.gamePhase !== 'revealing' && (
           <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
             <span className="text-lg font-bold text-yellow-800 dark:text-yellow-200">
               🔥 現在 {gameState.currentWinStreak} 連勝中！
@@ -346,7 +349,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       )}
 
       {/* ラウンド履歴 */}
-      {roundHistory.length > 0 && (
+      {roundHistory.length > 0 && gameState.gamePhase !== 'revealing' && (
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             📜 最近のラウンド
@@ -379,7 +382,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       )}
 
       {/* 統計情報 */}
-      {stats.totalRounds > 0 && (
+      {stats.totalRounds > 0 && gameState.gamePhase !== 'revealing' && (
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
             📊 統計情報
