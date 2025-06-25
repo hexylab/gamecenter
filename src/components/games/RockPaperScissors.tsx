@@ -152,10 +152,10 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
       };
 
       // 勝率と平均連勝を計算
-      const totalGames = newStats.totalGames;
-      if (totalGames > 0) {
-        newStats.winRate = (newStats.wins / totalGames) * 100;
-        newStats.averageWinStreak = newStats.wins / totalGames;
+      const totalRounds = newStats.totalRounds;
+      if (totalRounds > 0) {
+        newStats.winRate = (newStats.wins / totalRounds) * 100;
+        newStats.averageWinStreak = newStats.totalGames > 0 ? newStats.wins / newStats.totalGames : 0;
       }
 
       setStats(newStats);
@@ -401,7 +401,7 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
                 {Math.round(stats.winRate)}%
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                勝率
+                勝率 ({stats.wins}/{stats.totalRounds})
               </div>
             </div>
             <div className="text-center">
@@ -418,6 +418,33 @@ export const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onStatsUpd
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 ゲーム数
+              </div>
+            </div>
+          </div>
+
+          {/* 勝敗詳細 */}
+          <div className="mt-6">
+            <h4 className="text-md font-medium text-gray-900 dark:text-white mb-3 text-center">
+              勝敗詳細
+            </h4>
+            <div className="flex justify-center gap-8">
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-600 dark:text-green-400">
+                  {stats.wins}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">勝利</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-red-600 dark:text-red-400">
+                  {stats.losses}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">敗北</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {stats.draws}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">引き分け</div>
               </div>
             </div>
           </div>
